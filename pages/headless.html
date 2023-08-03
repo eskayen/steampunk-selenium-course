@@ -750,8 +750,105 @@ body[class*="dark-ui"] .mde-preview .cm-error {
   <body class="mde-preview">
     <div><h1 data-line="1" data-line-end="1">Running "Headless" Selenium Tests</h1>
 <h1 data-line="3" data-line-end="3">Content</h1>
-<h3 data-line="4" data-line-end="4">In Java</h3>
-<h3 data-line="5" data-line-end="5">In Python</h3>
-<h1 data-line="6" data-line-end="6">Resources</h1></div>
+<p data-line="5" data-line-end="5">Running your tests in "headless" mode means to have it run without all the browsers/tabs popping up. This can be very useful since it can drastically reduce resources and speed up execution speed. When you have thousands of tests, it can make a big difference. Here is a single test I conducted using a random demo (around 5 tests) on my computer, with the headless option set to false:</p>
+<p data-line="7" data-line-end="7"><img src="../images/not-headless.png" alt="not-headless.png"></p>
+<p data-line="9" data-line-end="9">and here is headless set to true:</p>
+<p data-line="11" data-line-end="11"><img src="headless.png" alt="headless.png"></p>
+<p data-line="13" data-line-end="13">This graph is from Window's task manager performance tab, under CPU usage.</p>
+<p data-line="15" data-line-end="15">Ignoring the extremely flawed test-taking methods I performed, you can see there is a slight difference. But other people have experimented with it and there is infact a huge benefit to running headless.</p>
+<h3 data-line="17" data-line-end="17">Java</h3>
+<p data-line="18" data-line-end="19">So let's make our sample code 'headless.' It is pretty simple. In our sample code, we have a <code>set_up()</code> method with a <strong data-line="18" data-line-end="18">@BeforeMethod</strong> tag, meaning it will execute before each test. This method contains setting up Webdriver, so we are going to dwindle in this one.
+Let's alter <code>set_up()</code> so it looks like this:</p>
+<pre data-line="21" data-line-end="30"><code>    @BeforeMethod
+    public void set_up(){
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.setHeadless(true);
+        driver = new ChromeDriver(options);
+        driver.get("https://www.coveros.com");
+    }
+</code></pre>
+<p data-line="31" data-line-end="31">We create a new variable <code>options</code>, which will be used as a parameter for the new <code>ChromeDriver</code> instance. Here we also use the method <code>options.setHeadless(true);</code> to actually 'mark it off' as headless. Now we can run the tests and you will notice that the tests execute, and this time, with no browsers. </p>
+<h3 data-line="33" data-line-end="33">In Python</h3>
+<p data-line="34" data-line-end="35">In Python, all you have to include is the line:
+<code>options.headless = True</code></p>
+<p data-line="37" data-line-end="37">before you call <code>driver.get</code></p>
+<p data-line="39" data-line-end="39">See this sample code</p>
+<pre data-line="40" data-line-end="49"><code>    def test_basic_browser_launch(self):
+        options = Options()
+        options.headless = True
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
+        driver.get('https://www.google.com')
+        self.assertEqual(driver.title, 'Google')
+        driver.close()
+</code></pre>
+<h1 data-line="52" data-line-end="52">Resources</h1>
+<h3 data-line="53" data-line-end="53">Blog</h3>
+<p data-line="54" data-line-end="54"><a href="https://www.selenium.dev/blog/2023/headless-is-going-away/" data-line="54" data-line-end="54">https://www.selenium.dev/blog/2023/headless-is-going-away/</a></p>
+<h3 data-line="56" data-line-end="56">Sample Code</h3>
+<pre data-line="58" data-line-end="121"><code>import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+
+public class SampleCode {
+    WebDriver driver;
+
+    @BeforeMethod
+    public void set_up(){
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.get("https://www.coveros.com");
+    }
+
+    WebElement searchBox;
+
+    public void search_for_text(String text){
+        WebElement searchBox = driver.findElement(By.id("s"));
+        searchBox.sendKeys(text);
+        searchBox.submit();
+    }
+
+    public void verify_result(String expected_result){
+        new WebDriverWait(driver, 10)
+                .until(ExpectedConditions.visibilityOfElementLocated(By.className("header-blog")));
+        assertEquals(driver.getTitle(), "You searched for " + expected_result + " - Coveros");
+    }
+
+    @AfterMethod
+    public void tear_down(){
+        //do extra stuff here
+        driver.quit();
+    }
+
+    @Test
+    public void search_for_wikipedia(){
+        search_for_text("wikipedia");
+        verify_result("wikipedia");
+    }
+
+    @Test
+    public void search_for_cheese(){
+        search_for_text("cheese");
+        verify_result("cheese");
+    }
+
+    @Test
+    public void search_for_selenium() {
+        search_for_text("selenium");
+        verify_result("selenium");
+    }
+}
+
+</code></pre></div>
   </body>
 </html>
