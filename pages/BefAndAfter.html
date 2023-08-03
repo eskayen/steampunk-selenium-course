@@ -750,6 +750,94 @@ body[class*="dark-ui"] .mde-preview .cm-error {
   <body class="mde-preview">
     <div><h1 data-line="1" data-line-end="1">Before and After Methods</h1>
 <h1 data-line="3" data-line-end="3">Content</h1>
-<h1 data-line="4" data-line-end="4">Resources</h1></div>
+<p data-line="4" data-line-end="4">We will use the code given in <strong data-line="4" data-line-end="4">Resources</strong>, which is the same as the module 'KISS and DRY code', but slightly altered so that the URL is not a parameter in the <code>set_up</code> method. This is actually better practice.</p>
+<p data-line="6" data-line-end="6">Before and After methods can further reduce the amount of lines you use in your test scripts and increase conciseness.</p>
+<p data-line="8" data-line-end="8">Before and After methods are methods that run before and after, respectively, each test run. For example, if you add the <strong data-line="8" data-line-end="8">@BeforeMethod</strong> tag on the <code>set_up()</code> method, it will do that method before each test run, so you do not have to necessarily call it in each test case. Let's try that:</p>
+<pre data-line="10" data-line-end="17"><code>    @BeforeMethod
+    public void set_up(){
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.get("https://www.coveros.com");
+    }
+</code></pre>
+<p data-line="19" data-line-end="19">Now we can remove every <code>set_up()</code> line from each test.</p>
+<p data-line="21" data-line-end="21">After methods are also a thing. Adding the @AfterMethod tag to the methods you want to execute after every test will also decrease the amount of lines you need to write. </p>
+<p data-line="23" data-line-end="23">After every test, I will call <code>tear_down()</code>, so I will add the <strong data-line="23" data-line-end="23">@AfterMethod</strong> tag to that.</p>
+<pre data-line="25" data-line-end="32"><code>    @AfterMethod
+    public void tear_down(){
+        //do extra stuff here
+        driver.quit();
+    }
+
+</code></pre>
+<p data-line="34" data-line-end="34">Now I can remove it from every test because it's now an AfterMethod.</p>
+<p data-line="36" data-line-end="36">The tests still run properly, and if you have not noticed, the body of our test cases are ONLY 2 lines long! Big improvement from when we started the 'KISS and DRY code' module.</p>
+<h1 data-line="37" data-line-end="37">Resources</h1>
+<h3 data-line="38" data-line-end="38">Sample Code</h3>
+<pre data-line="39" data-line-end="104"><code>import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+
+public class SampleCode {
+    WebDriver driver;
+
+    public void set_up(){
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.get("https://www.coveros.com");
+    }
+
+    WebElement searchBox;
+
+    public void search_for_text(String text){
+        WebElement searchBox = driver.findElement(By.id("s"));
+        searchBox.sendKeys(text);
+        searchBox.submit();
+    }
+
+    public void verify_result(String expected_result){
+        new WebDriverWait(driver, 10)
+                .until(ExpectedConditions.visibilityOfElementLocated(By.className("header-blog")));
+        assertEquals(driver.getTitle(), "You searched for " + expected_result + " - Coveros");
+    }
+
+    public void tear_down(){
+        //do extra stuff here
+        driver.quit();
+    }
+
+    @Test
+    public void search_for_wikipedia(){
+        set_up();
+        search_for_text("wikipedia");
+        verify_result("wikipedia");
+        tear_down();
+    }
+
+    @Test
+    public void search_for_cheese(){
+        set_up();
+        search_for_text("cheese");
+        verify_result("cheese");
+        tear_down();
+    }
+
+    @Test
+    public void search_for_selenium() {
+        set_up();
+        search_for_text("selenium");
+        verify_result("selenium");
+        tear_down();
+    }
+}
+
+</code></pre></div>
   </body>
 </html>
