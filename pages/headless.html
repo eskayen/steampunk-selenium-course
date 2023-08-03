@@ -753,9 +753,9 @@ body[class*="dark-ui"] .mde-preview .cm-error {
 <p data-line="5" data-line-end="5">Running your tests in "headless" mode means to have it run without all the browsers/tabs popping up. This can be very useful since it can drastically reduce resources and speed up execution speed. When you have thousands of tests, it can make a big difference. Here is a single test I conducted using a random demo (around 5 tests) on my computer, with the headless option set to false:</p>
 <p data-line="7" data-line-end="7"><img src="../images/not-headless.png" alt="not-headless.png"></p>
 <p data-line="9" data-line-end="9">and here is headless set to true:</p>
-<p data-line="11" data-line-end="11"><img src="headless.png" alt="headless.png"></p>
+<p data-line="11" data-line-end="11"><img src="../images/headless.png" alt="headless.png"></p>
 <p data-line="13" data-line-end="13">This graph is from Window's task manager performance tab, under CPU usage.</p>
-<p data-line="15" data-line-end="15">Ignoring the extremely flawed test-taking methods I performed, you can see there is a slight difference. But other people have experimented with it and there is infact a huge benefit to running headless.</p>
+<p data-line="15" data-line-end="15">Ignoring the extremely flawed experiment I performed, you can see there is a slight difference. But other people have experimented with it and there is infact a huge benefit to running headless.</p>
 <h3 data-line="17" data-line-end="17">Java</h3>
 <p data-line="18" data-line-end="19">So let's make our sample code 'headless.' It is pretty simple. In our sample code, we have a <code>set_up()</code> method with a <strong data-line="18" data-line-end="18">@BeforeMethod</strong> tag, meaning it will execute before each test. This method contains setting up Webdriver, so we are going to dwindle in this one.
 Let's alter <code>set_up()</code> so it looks like this:</p>
