@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Before and After Methods</title>
+    <title>Before and After Annotations</title>
     <style source-path="global-text-editor-styles">.mde-cm-wrapper .CodeMirror {
       font-size: 13px;
       font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
@@ -748,33 +748,170 @@ body[class*="dark-ui"] .mde-preview .cm-error {
 </style>
   </head>
   <body class="mde-preview">
-    <div><h1 data-line="1" data-line-end="1">Before and After Methods</h1>
+    <div><h1 data-line="1" data-line-end="1">Before and After Annotations</h1>
 <h1 data-line="3" data-line-end="3">Content</h1>
-<p data-line="4" data-line-end="4">We will use the code given in <strong data-line="4" data-line-end="4">Resources</strong>, which is the same as the module 'KISS and DRY code', but slightly altered so that the URL is not a parameter in the <code>set_up</code> method. This is actually better practice.</p>
-<p data-line="6" data-line-end="6">Before and After methods can further reduce the amount of lines you use in your test scripts and increase conciseness.</p>
-<p data-line="8" data-line-end="8">Before and After methods are methods that run before and after, respectively, each test run. For example, if you add the <strong data-line="8" data-line-end="8">@BeforeMethod</strong> tag on the <code>set_up()</code> method, it will do that method before each test run, so you do not have to necessarily call it in each test case. Let's try that:</p>
-<pre data-line="10" data-line-end="17"><code>    @BeforeMethod
+<p data-line="4" data-line-end="4">We will use the code given in <strong data-line="4" data-line-end="4">Resources</strong> (bottom of the page), which is the same code from the module 'KISS and DRY code', but it is slightly altered so that the URL is not a parameter in the <code>set_up</code> method.</p>
+<p data-line="6" data-line-end="6">Before and After annotations can further reduce the amount of lines you use in your test scripts and increase conciseness. Here is a list of all the annotations from the TestNG's documentation page:</p>
+<p data-line="8" data-line-end="8"><img src="../images/testng-doc.png" alt="documentation.png"></p>
+<p data-line="10" data-line-end="10"><strong data-line="10" data-line-end="10">@AfterMethod</strong> and <strong data-line="10" data-line-end="10">@BeforeMethod</strong> are highlighted specifically because those two are the ones I am going to integrate into my sample code to make it simpler and easy to understand. But there are multiple different types of After/Before annotations to organize the structure of your code.</p>
+<p data-line="13" data-line-end="13">Methods that are tagged with the <strong data-line="13" data-line-end="13">@BeforeMethod</strong> annotation are methods that execute before each test. Likewise, methods that are tagged with the <strong data-line="13" data-line-end="13">@AfterMethod</strong> annotation are executed after every test. </p>
+<p data-line="15" data-line-end="15">For example, let's say I have 3 methods. MethodA is an AfterMethod, MethodB is a BeforeMethod, and TestA and TestB are regular test cases. When I execute my tests (in this case, TestA and TestB), this is the order of how it will execute (each row is a test):</p>
+<pre data-line="17" data-line-end="20"><code>MethodA -&gt; TestA -&gt; MethodB
+MethodA -&gt; TestB -&gt; MethodB
+</code></pre>
+<p data-line="24" data-line-end="24">Now let's implement this to our sample code. All of our tests call the method <code>set_up()</code>, which starts and runs the driver. If we add the <strong data-line="24" data-line-end="24">@BeforeMethod</strong> tag on the <code>set_up()</code> method, it will do that method before each test run, so you do not have to necessarily call it in each test case. Let's try that:</p>
+<pre data-line="26" data-line-end="33"><code>    @BeforeMethod
     public void set_up(){
         WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver();
         driver.get("https://www.coveros.com");
     }
 </code></pre>
-<p data-line="19" data-line-end="19">Now we can remove every <code>set_up()</code> line from each test.</p>
-<p data-line="21" data-line-end="21">After methods are also a thing. Adding the @AfterMethod tag to the methods you want to execute after every test will also decrease the amount of lines you need to write. </p>
-<p data-line="23" data-line-end="23">After every test, I will call <code>tear_down()</code>, so I will add the <strong data-line="23" data-line-end="23">@AfterMethod</strong> tag to that.</p>
-<pre data-line="25" data-line-end="32"><code>    @AfterMethod
+<p data-line="35" data-line-end="35">Now we can remove every <code>set_up()</code> line from each test.</p>
+<p data-line="37" data-line-end="37">Another pattern you may have noticed is that every test ends with the calling of <code>tear_down()</code>, which closes/quits the driver. Let's add the <strong data-line="37" data-line-end="37">@AfterMethod</strong> annotation to our <code>tear_down()</code> method. We can now remove each line that contains <code>tear_down()</code> from our test cases. It should look like this:</p>
+<pre data-line="40" data-line-end="47"><code>    @AfterMethod
     public void tear_down(){
         //do extra stuff here
         driver.quit();
     }
 
 </code></pre>
-<p data-line="34" data-line-end="34">Now I can remove it from every test because it's now an AfterMethod.</p>
-<p data-line="36" data-line-end="36">The tests still run properly, and if you have not noticed, the body of our test cases are ONLY 2 lines long! Big improvement from when we started the 'KISS and DRY code' module.</p>
-<h1 data-line="37" data-line-end="37">Resources</h1>
-<h3 data-line="38" data-line-end="38">Sample Code</h3>
-<pre data-line="39" data-line-end="104"><code>import io.github.bonigarcia.wdm.WebDriverManager;
+<p data-line="50" data-line-end="50">The tests still run properly (the window opens, searches, verifies, then closes).</p>
+<p data-line="52" data-line-end="52">This is what our final code looks like:</p>
+<pre data-line="54" data-line-end="117"><code>import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+
+public class SampleCode {
+    WebDriver driver;
+
+    @BeforeMethod
+    public void set_up(){
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.get("https://www.coveros.com");
+    }
+
+    WebElement searchBox;
+
+    public void search_for_text(String text){
+        WebElement searchBox = driver.findElement(By.id("s"));
+        searchBox.sendKeys(text);
+        searchBox.submit();
+    }
+
+    public void verify_result(String expected_result){
+        new WebDriverWait(driver, 10)
+                .until(ExpectedConditions.visibilityOfElementLocated(By.className("header-blog")));
+        assertEquals(driver.getTitle(), "You searched for " + expected_result + " - Coveros");
+    }
+
+    @AfterMethod
+    public void tear_down(){
+        //do extra stuff here
+        driver.quit();
+    }
+
+    @Test
+    public void search_for_wikipedia(){
+        search_for_text("wikipedia");
+        verify_result("wikipedia");
+    }
+
+    @Test
+    public void search_for_cheese(){
+        search_for_text("cheese");
+        verify_result("cheese");
+    }
+
+    @Test
+    public void search_for_selenium() {
+        search_for_text("selenium");
+        verify_result("selenium");
+    }
+}
+
+</code></pre>
+<p data-line="119" data-line-end="119">Compare this to what we started with (before the 'KISS and DRY' module):</p>
+<pre data-line="121" data-line-end="187"><code>import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+
+public class SampleCode {
+
+    @Test
+    public void search_for_wikipedia(){
+        WebDriverManager.chromedriver().setup();
+        WebDriver driver = new ChromeDriver();
+        driver.get("https://www.coveros.com");
+
+        WebElement searchBox = driver.findElement(By.id("s"));
+        searchBox.sendKeys("wikipedia");
+        searchBox.submit();
+
+        new WebDriverWait(driver, 10)
+                .until(ExpectedConditions.visibilityOfElementLocated(By.className("header-blog")));
+        assertEquals(driver.getTitle(), "You searched for wikipedia - Coveros");
+
+        driver.quit();
+    }
+
+    @Test
+    public void search_for_cheese(){
+        WebDriverManager.chromedriver().setup();
+        WebDriver driver = new ChromeDriver();
+        driver.get("https://www.coveros.com");
+
+        WebElement searchBox = driver.findElement(By.id("s"));
+        searchBox.sendKeys("cheese");
+        searchBox.submit();
+
+        new WebDriverWait(driver, 10)
+                .until(ExpectedConditions.visibilityOfElementLocated(By.className("header-blog")));
+        assertEquals(driver.getTitle(), "You searched for cheese - Coveros");
+
+        driver.quit();
+    }
+
+    @Test
+    public void search_for_selenium() {
+
+        WebDriverManager.chromedriver().setup();
+        WebDriver driver = new ChromeDriver();
+        driver.get("https://www.coveros.com");
+
+        WebElement searchBox = driver.findElement(By.id("s"));
+        searchBox.sendKeys("selenium");
+        searchBox.submit();
+
+        new WebDriverWait(driver, 10)
+                .until(ExpectedConditions.visibilityOfElementLocated(By.className("header-blog")));
+        assertEquals(driver.getTitle(), "You searched for selenium - Coveros");
+
+        driver.quit();
+    }
+}
+</code></pre>
+<p data-line="189" data-line-end="189">Each test goes from pretty frightening code to ONLY 2 lines long!</p>
+<h1 data-line="192" data-line-end="192">Resources</h1>
+<h3 data-line="193" data-line-end="193">Sample Code</h3>
+<pre data-line="194" data-line-end="259"><code>import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -838,6 +975,8 @@ public class SampleCode {
     }
 }
 
-</code></pre></div>
+</code></pre>
+<h3 data-line="261" data-line-end="261">TestNG Documentation</h3>
+<p data-line="262" data-line-end="262"><a href="https://testng.org/doc/documentation-main.html" data-line="262" data-line-end="262">https://testng.org/doc/documentation-main.html</a></p></div>
   </body>
 </html>
